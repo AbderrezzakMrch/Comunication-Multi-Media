@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Uploader</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>🎥 Upload 4K Videos</h1>
+  
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="videos" id="videos" multiple accept="video/*">
+    <button type="submit">Upload</button>
+  </form>
+
+  <p id="message"></p>
+
+  <h2>Uploaded Videos</h2>
+  <div class="video-container">
+    {% for video in videos %}
+      <video controls width="400" src="{{ url_for('uploaded_file', filename=video) }}"></video>
+    {% endfor %}
+  </div>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      const files = document.getElementById('videos').files;
+      for (let file of files) formData.append('videos', file);
+
+      const res = await fetch('/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const text = await res.text();
+      document.getElementById('message').textContent = text;
+      if (res.ok) window.location.reload();
+    });
+  </script>
+</body>
+</html>
