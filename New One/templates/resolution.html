@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Resolutions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Step 3: Create Multiple Resolutions & Segment All</h1>
+        
+        <!-- Video Selection -->
+        <div class="video-selector">
+            <label for="videoSelect">Select Video:</label>
+            <select id="videoSelect">
+                <option value="">-- Select a video --</option>
+                {% for video_id, video in videos.items() %}
+                <option value="{{ video_id }}">{{ video.filename }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div id="videoInfo" class="video-info" style="display: none;">
+            <h3>Video Information</h3>
+            <p id="videoName"></p>
+            <p id="videoDuration"></p>
+            <p id="segmentCount"></p>
+        </div>
+        
+        <!-- Resolution Controls -->
+        <div class="resolution-controls">
+            <div class="control-group">
+                <h3>Step 3a: Create Multiple Resolutions</h3>
+                <button id="resolutionButton" onclick="createResolutions()">Generate All Resolutions</button>
+            </div>
+            
+            <div class="control-group">
+                <h3>Step 3b: Segment All Resolutions</h3>
+                <p class="info-text">This will create segments for all available resolutions</p>
+                <button id="segmentAllButton" onclick="segmentAllResolutions()">Segment All Resolutions</button>
+            </div>
+        </div>
+        
+        <div id="resolutionResult" class="result-container" style="display: none;"></div>
+        
+        <!-- Display Available Resolutions -->
+        <div class="resolutions-section">
+            <h2>Generated Resolutions</h2>
+            <div id="resolutionsContainer">
+                {% for video_id, video in videos.items() %}
+                    {% if video.resolutions %}
+                    <div class="video-resolutions">
+                        <h3>{{ video.filename }} - Available Resolutions</h3>
+                        <div class="resolutions-grid">
+                            <div class="resolution-card original">
+                                <div class="resolution-info">
+                                    <h4>ORIGINAL</h4>
+                                    <p>Status: {% if video.original_segments %}Segmented{% else %}Not Segmented{% endif %}</p>
+                                </div>
+                            </div>
+                            {% for resolution_name, resolution_info in video.resolutions.items() %}
+                            <div class="resolution-card">
+                                <div class="resolution-info">
+                                    <h4>{{ resolution_name|upper }}</h4>
+                                    <p>Resolution: {{ resolution_info.resolution }}</p>
+                                    <p>Status: 
+                                        {% if video.resolution_segments and resolution_name in video.resolution_segments %}
+                                            Segmented
+                                        {% else %}
+                                            Not Segmented
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- ✅ FIXED: replaced Python 'any()' with Jinja-compatible logic -->
+            {% set has_resolutions = false %}
+            {% for video in videos.values() %}
+                {% if video.resolutions %}
+                    {% set has_resolutions = true %}
+                {% endif %}
+            {% endfor %}
+            {% if not has_resolutions %}
+                <p class="no-resolutions">
+                    No resolutions generated yet. Select a video and generate resolutions above.
+                </p>
+            {% endif %}
+        </div>
+
+        <!-- Display Resolution Segments -->
+        <div class="resolution-segments-section">
+            <h2>Resolution Segments</h2>
+            <div id="resolutionSegmentsContainer">
+                {% for video_id, video in videos.items() %}
+                    {% if video.resolution_segments %}
+                    <div class="video-resolution-segments">
+                        <h3>{{ video.filename }} - All Resolution Segments</h3>
+                        {% for resolution_name, segments in video.resolution_segments.items() %}
+                        <div class="resolution-segment-group">
+                            <h4>{{ resolution_name|upper }} Resolution Segments</h4>
+                            <div class="segments-grid">
+                                {% for segment_id, segment in segments.items() %}
+                                <div class="segment-card">
+                                    <div class="video-player">
+                                        <video controls>
+                                            <source src="{{ url_for('get_segment_file', video_id=video_id, resolution=resolution_name, segment_id=segment_id) }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                    <div class="segment-info">
+                                        <h4>Segment {{ segment_id }}</h4>
+                                        <p>Resolution: {{ resolution_name|upper }}</p>
+                                        <p>Start: {{ "%.2f"|format(segment.start_time) }}s</p>
+                                        <p>Duration: {{ "%.2f"|format(segment.duration) }}s</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- ✅ FIXED: replaced Python 'any()' with Jinja-compatible logic -->
+            {% set has_segments = false %}
+            {% for video in videos.values() %}
+                {% if video.resolution_segments %}
+                    {% set has_segments = true %}
+                {% endif %}
+            {% endfor %}
+            {% if not has_segments %}
+                <p class="no-resolution-segments">
+                    No resolution segments created yet. Create resolutions and segment them above.
+                </p>
+            {% endif %}
+        </div>
+        
+        <!-- Navigation -->
+        <div class="navigation">
+            <a href="/segment" class="nav-button">← Back to Segmentation</a>
+            <a href="/player" class="nav-button">Go to Step 4: Player →</a>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
