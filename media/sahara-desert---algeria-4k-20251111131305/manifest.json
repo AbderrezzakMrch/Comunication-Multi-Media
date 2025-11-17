@@ -1,0 +1,230 @@
+{
+  "playlist_id": "sahara-desert---algeria-4k-20251111131305",
+  "created_at": "2025-11-11T13:14:57Z",
+  "created_at_ts": 1762863297.239429,
+  "segment_duration": 30,
+  "requested_resolutions": [
+    2160,
+    1440,
+    1080,
+    720,
+    480,
+    360,
+    240,
+    144
+  ],
+  "skipped_resolutions": [
+    2160,
+    1440,
+    1080
+  ],
+  "source": {
+    "filename": "SAHARA_DESERT_-_ALGERIA_4K.mp4",
+    "path": "sahara-desert---algeria-4k-20251111131305/source/SAHARA_DESERT_-_ALGERIA_4K.mp4",
+    "width": 1280,
+    "height": 720,
+    "duration": 118.524762
+  },
+  "variants": [
+    {
+      "label": "720p (master)",
+      "height": 720,
+      "width": 1280,
+      "duration": 118.523991,
+      "file": "sahara-desert---algeria-4k-20251111131305/variants/720p/SAHARA_DESERT_-_ALGERIA_4K_720p.mp4",
+      "segments": [
+        {
+          "index": 1,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/720p/SAHARA_DESERT_-_ALGERIA_4K_720p_part_000.mp4",
+          "size_bytes": 9939295,
+          "duration": 30,
+          "label": "Segment 1"
+        },
+        {
+          "index": 2,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/720p/SAHARA_DESERT_-_ALGERIA_4K_720p_part_001.mp4",
+          "size_bytes": 8069332,
+          "duration": 30,
+          "label": "Segment 2"
+        },
+        {
+          "index": 3,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/720p/SAHARA_DESERT_-_ALGERIA_4K_720p_part_002.mp4",
+          "size_bytes": 7927795,
+          "duration": 30,
+          "label": "Segment 3"
+        },
+        {
+          "index": 4,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/720p/SAHARA_DESERT_-_ALGERIA_4K_720p_part_003.mp4",
+          "size_bytes": 4633758,
+          "duration": 30,
+          "label": "Segment 4"
+        }
+      ],
+      "is_master": true,
+      "size_bytes": 30565867,
+      "bitrate_kbps": 2063.1
+    },
+    {
+      "label": "480p",
+      "height": 480,
+      "width": 854,
+      "duration": 118.523991,
+      "file": "sahara-desert---algeria-4k-20251111131305/variants/480p/SAHARA_DESERT_-_ALGERIA_4K_480p.mp4",
+      "segments": [
+        {
+          "index": 1,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/480p/SAHARA_DESERT_-_ALGERIA_4K_480p_part_000.mp4",
+          "size_bytes": 4743350,
+          "duration": 30,
+          "label": "Segment 1"
+        },
+        {
+          "index": 2,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/480p/SAHARA_DESERT_-_ALGERIA_4K_480p_part_001.mp4",
+          "size_bytes": 3381299,
+          "duration": 30,
+          "label": "Segment 2"
+        },
+        {
+          "index": 3,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/480p/SAHARA_DESERT_-_ALGERIA_4K_480p_part_002.mp4",
+          "size_bytes": 3513973,
+          "duration": 30,
+          "label": "Segment 3"
+        },
+        {
+          "index": 4,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/480p/SAHARA_DESERT_-_ALGERIA_4K_480p_part_003.mp4",
+          "size_bytes": 1879610,
+          "duration": 30,
+          "label": "Segment 4"
+        }
+      ],
+      "is_master": false,
+      "size_bytes": 13513901,
+      "bitrate_kbps": 912.15
+    },
+    {
+      "label": "360p",
+      "height": 360,
+      "width": 640,
+      "duration": 118.523991,
+      "file": "sahara-desert---algeria-4k-20251111131305/variants/360p/SAHARA_DESERT_-_ALGERIA_4K_360p.mp4",
+      "segments": [
+        {
+          "index": 1,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/360p/SAHARA_DESERT_-_ALGERIA_4K_360p_part_000.mp4",
+          "size_bytes": 2857430,
+          "duration": 30,
+          "label": "Segment 1"
+        },
+        {
+          "index": 2,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/360p/SAHARA_DESERT_-_ALGERIA_4K_360p_part_001.mp4",
+          "size_bytes": 1727076,
+          "duration": 30,
+          "label": "Segment 2"
+        },
+        {
+          "index": 3,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/360p/SAHARA_DESERT_-_ALGERIA_4K_360p_part_002.mp4",
+          "size_bytes": 1936833,
+          "duration": 30,
+          "label": "Segment 3"
+        },
+        {
+          "index": 4,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/360p/SAHARA_DESERT_-_ALGERIA_4K_360p_part_003.mp4",
+          "size_bytes": 1011900,
+          "duration": 30,
+          "label": "Segment 4"
+        }
+      ],
+      "is_master": false,
+      "size_bytes": 7528920,
+      "bitrate_kbps": 508.18
+    },
+    {
+      "label": "240p",
+      "height": 240,
+      "width": 426,
+      "duration": 118.523991,
+      "file": "sahara-desert---algeria-4k-20251111131305/variants/240p/SAHARA_DESERT_-_ALGERIA_4K_240p.mp4",
+      "segments": [
+        {
+          "index": 1,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/240p/SAHARA_DESERT_-_ALGERIA_4K_240p_part_000.mp4",
+          "size_bytes": 1175905,
+          "duration": 30,
+          "label": "Segment 1"
+        },
+        {
+          "index": 2,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/240p/SAHARA_DESERT_-_ALGERIA_4K_240p_part_001.mp4",
+          "size_bytes": 715776,
+          "duration": 30,
+          "label": "Segment 2"
+        },
+        {
+          "index": 3,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/240p/SAHARA_DESERT_-_ALGERIA_4K_240p_part_002.mp4",
+          "size_bytes": 784838,
+          "duration": 30,
+          "label": "Segment 3"
+        },
+        {
+          "index": 4,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/240p/SAHARA_DESERT_-_ALGERIA_4K_240p_part_003.mp4",
+          "size_bytes": 396247,
+          "duration": 30,
+          "label": "Segment 4"
+        }
+      ],
+      "is_master": false,
+      "size_bytes": 3068441,
+      "bitrate_kbps": 207.11
+    },
+    {
+      "label": "144p",
+      "height": 144,
+      "width": 256,
+      "duration": 118.523991,
+      "file": "sahara-desert---algeria-4k-20251111131305/variants/144p/SAHARA_DESERT_-_ALGERIA_4K_144p.mp4",
+      "segments": [
+        {
+          "index": 1,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/144p/SAHARA_DESERT_-_ALGERIA_4K_144p_part_000.mp4",
+          "size_bytes": 422298,
+          "duration": 30,
+          "label": "Segment 1"
+        },
+        {
+          "index": 2,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/144p/SAHARA_DESERT_-_ALGERIA_4K_144p_part_001.mp4",
+          "size_bytes": 282277,
+          "duration": 30,
+          "label": "Segment 2"
+        },
+        {
+          "index": 3,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/144p/SAHARA_DESERT_-_ALGERIA_4K_144p_part_002.mp4",
+          "size_bytes": 283194,
+          "duration": 30,
+          "label": "Segment 3"
+        },
+        {
+          "index": 4,
+          "path": "sahara-desert---algeria-4k-20251111131305/segments/144p/SAHARA_DESERT_-_ALGERIA_4K_144p_part_003.mp4",
+          "size_bytes": 144162,
+          "duration": 30,
+          "label": "Segment 4"
+        }
+      ],
+      "is_master": false,
+      "size_bytes": 1127621,
+      "bitrate_kbps": 76.11
+    }
+  ]
+}

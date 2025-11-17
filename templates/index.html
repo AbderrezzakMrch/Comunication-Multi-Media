@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMM_streaming</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar__brand">
+                <a class="brand" href="{{ url_for('home') }}">
+                    <span class="brand__logo">▶</span>
+                    <span class="brand__text">CMM_streaming</span>
+                </a>
+            </div>
+            <div class="sidebar__section">
+                <p class="sidebar__section-title">Uploads</p>
+                {% if available_playlists %}
+                    <ul class="sidebar__list">
+                        {% for item in available_playlists %}
+                            <li class="sidebar__list-item {% if item.id == active_playlist_id %}sidebar__list-item--active{% endif %}">
+                                <a class="sidebar__link" href="{{ url_for('home', playlist=item.id) }}">
+                                    <div class="sidebar__thumb" aria-hidden="true">{{ (item.title[:1] or '#')|upper }}</div>
+                                    <div class="sidebar__meta">
+                                        <span class="sidebar__title" title="{{ item.title }}">{{ item.title }}</span>
+                                        <span class="sidebar__subtitle">
+                                            {% if item.created_at %}
+                                                {{ item.created_at }}
+                                            {% else %}
+                                                Recently processed
+                                            {% endif %}
+                                        </span>
+                                        {% if item.resolutions %}
+                                            <span class="sidebar__resolutions">{{ item.resolutions | join(' • ') }}</span>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="sidebar__empty">No uploads yet. Start by adding a video.</p>
+                {% endif %}
+            </div>
+        </aside>
+
+        <main class="content">
+            <section class="stage">
+                <div class="stage__panel">
+                    <div class="stage__intro">
+                        <h1>Kickstart Your Stream</h1>
+                        <p>Upload a source video to generate adaptive resolutions and segments for responsive streaming.</p>
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                <div class="alert-container">
+                                    {% for category, message in messages %}
+                                        <div class="alert alert--{{ category }}">{{ message }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                        <button class="stage__cta" id="uploadCTA">
+                            <span class="stage__cta-icon" aria-hidden="true"></span>
+                            <span class="stage__cta-label">Upload a Video</span>
+                        </button>
+                    </div>
+                    {% if upload_summary %}
+                        <div class="stage__player-wrapper">
+                            <div class="player-card" id="playerCard">
+                                <div class="player-card__video-pane">
+                                    <video id="adaptivePlayer" class="player-card__video" controls preload="metadata" poster="">
+                                        {% if upload_summary.master.file %}
+                                            <source src="{{ url_for('media', filename=upload_summary.master.file) }}" type="video/mp4">
+                                        {% endif %}
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <div class="player-card__status">
+                                        <span class="player-card__status-label">Now playing:</span>
+                                        <span class="player-card__status-value" id="currentSourceLabel">{{ upload_summary.master.label }} &mdash; full video</span>
+                                    </div>
+                                </div>
+                                <div class="player-card__control-pane">
+                                    <div class="player-card__section">
+                                        <div class="player-card__section-header">
+                                            <h3>Resolutions</h3>
+                                            <label class="toggle">
+                                                <input type="checkbox" id="autoAdaptToggle" checked>
+                                                <span class="toggle__label">Auto adapt</span>
+                                            </label>
+                                            <span id="currentResolutionLabel">{{ upload_summary.master.label }}</span>
+                                        </div>
+                                        <div class="chip-group" id="resolutionList"></div>
+                                    </div>
+                                    <div class="player-card__section">
+                                        <div class="player-card__section-header">
+                                            <h3>Segments</h3>
+                                            <span class="player-card__hint">Select a segment to jump immediately.</span>
+                                        </div>
+                                        <ul class="segment-list" id="segmentList"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-card__header">
+                                <h2 class="summary-card__title">{{ upload_summary.master.filename }}</h2>
+                                <div class="summary-card__meta">
+                                    <span>Playlist: {{ upload_summary.playlist_id }}</span>
+                                    <span>Created: {{ upload_summary.created_at }}</span>
+                                    <span>Segment length: {{ upload_summary.segment_duration }}s</span>
+                                </div>
+                            </div>
+                            <ul class="summary-card__variants">
+                                <li class="summary-card__variant">
+                                    <span>{{ upload_summary.master.label }}</span>
+                                    <span>{{ upload_summary.master.segment_count }} segments</span>
+                                </li>
+                                {% for variant in upload_summary.variants %}
+                                    <li class="summary-card__variant">
+                                        <span>{{ variant.label }}</span>
+                                        <span>{{ variant.segment_count }} segments</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            {% if upload_summary.skipped_resolutions %}
+                                <p class="summary-card__note">
+                                    Skipped resolutions:
+                                    {% for item in upload_summary.skipped_resolutions %}
+                                        {{ item }}p{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                    (would require upscaling).
+                                </p>
+                            {% endif %}
+                        </div>
+                        {% if player_payload_json %}
+                            <script type="application/json" id="playerData">{{ player_payload_json|safe }}</script>
+                        {% endif %}
+                    {% else %}
+                        <div class="stage__empty">
+                            <p>Upload your first video to see it appear here with adaptive streaming ready to go.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal" id="uploadModal" aria-hidden="true">
+        <div class="modal__backdrop" id="uploadBackdrop" role="presentation"></div>
+        <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="uploadTitle">
+            <header class="modal__header">
+                <div>
+                    <h2 id="uploadTitle">Upload Video</h2>
+                    <p class="modal__subtitle">Select your source file, desired resolutions, and segmentation settings.</p>
+                </div>
+                <button class="icon-button modal__close" id="uploadClose" aria-label="Close upload dialog">
+                    <span class="icon-close"></span>
+                </button>
+            </header>
+            <form class="upload-form" id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                <section class="upload-form__section">
+                    <label for="videoFile" class="upload-form__label">Source video</label>
+                    <label class="file-drop" for="videoFile">
+                        <span class="file-drop__icon" aria-hidden="true"></span>
+                        <span class="file-drop__text">
+                            <strong id="videoFileLabel">Choose a video file</strong>
+                            <small>MP4, MOV, MKV up to 4K (no upscaling will be applied)</small>
+                        </span>
+                        <input type="file" id="videoFile" name="video_file" accept="video/*" required>
+                    </label>
+                </section>
+
+                <section class="upload-form__section">
+                    <p class="upload-form__label">Generate resolutions</p>
+                    <div class="resolution-grid">
+                        <label class="checkbox-chip">
+                            <input type="checkbox" name="resolutions" value="2160" checked>
+                            <span>2160p (4K)</span>
+                        </label>
+                        <label class="checkbox-chip">
+                            <input type="checkbox" name="resolutions" value="1440" checked>
+                            <span>1440p</span>
+                        </label>
+                        <label class="checkbox-chip">
+                            <input type="checkbox" name="resolutions" value="1080" checked>
+                            <span>1080p</span>
+                        </label>
+                        <label class="checkbox-chip">
+                            <input type="checkbox" name="resolutions" value="720" checked>
+                            <span>720p</span>
+                        </label>
+                        <label class="checkbox-chip">
+                            <input type="checkbox" name="resolutions" value="480" checked>
+                            <span>480p</span>
+                        </label>
+                        <label class="checkbox-chip">
+                            <input type="checkbox" name="resolutions" value="360" checked>
+                            <span>360p</span>
+                        </label>
+                        <label class="checkbox-chip">
+                            <input type="checkbox" name="resolutions" value="240" checked>
+                            <span>240p</span>
+                        </label>
+                        <label class="checkbox-chip">
+                            <input type="checkbox" name="resolutions" value="144" checked>
+                            <span>144p</span>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="upload-form__section">
+                    <div class="upload-form__field">
+                        <label for="segmentDuration" class="upload-form__label">Segment duration (seconds)</label>
+                        <input type="number" id="segmentDuration" name="segment_duration" min="5" max="600" step="5" value="30" required>
+                        <small class="field-hint">Videos will be split into N segments of this length.</small>
+                    </div>
+                </section>
+
+                <footer class="modal__footer">
+                    <button type="button" class="text-button" id="uploadCancel">Cancel</button>
+                    <button type="submit" class="primary-button">Upload</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
