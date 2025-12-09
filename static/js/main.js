@@ -15,6 +15,10 @@ const currentResolutionLabel = document.getElementById('currentResolutionLabel')
 const currentSourceLabel = document.getElementById('currentSourceLabel');
 const playerDataScript = document.getElementById('playerData');
 const autoAdaptToggle = document.getElementById('autoAdaptToggle');
+const simulateBandwidthToggle = document.getElementById('simulateBandwidthToggle');
+const simulateBandwidthRange = document.getElementById('simulateBandwidthRange');
+const simulateBandwidthValue = document.getElementById('simulateBandwidthValue');
+const simulateBandwidthLabel = document.getElementById('simulateBandwidthLabel');
 
 if(menuToggle && sidebar){
     menuToggle.addEventListener('click', () => {
@@ -101,6 +105,29 @@ if(playerDataScript){
     try{
         const playerData = JSON.parse(playerDataScript.textContent);
         initialiseAdaptivePlayer(playerData);
+
+        // If the server-provided payload includes a manifest URL, fetch it
+        // so it appears in the browser Network inspector for debugging.
+        try{
+            if(playerData && playerData.manifestUrl){
+                fetch(playerData.manifestUrl, { cache: 'no-cache' })
+                    .then((resp) => {
+                        if(!resp.ok){
+                            console.warn('Manifest fetch returned non-OK status', resp.status);
+                        }
+                        return resp.text();
+                    })
+                    .then((text) => {
+                        // Keep a small copy in console for quick inspection (optional)
+                        try{ console.debug('Loaded manifest:', JSON.parse(text)); } catch(e){ console.debug('Loaded manifest (raw):', text); }
+                    })
+                    .catch((fetchErr) => {
+                        console.warn('Failed to fetch manifest URL', fetchErr);
+                    });
+            }
+        } catch(err){
+            console.warn('Error attempting to fetch manifestUrl', err);
+        }
     } catch(error){
         console.error('Failed to parse player data.', error);
     }
@@ -409,9 +436,22 @@ function initialiseAdaptivePlayer(playerData){
     }
 
     function maybeAutoAdapt(resourceUrl){
-        const measuredThroughput = measureThroughputKbps(resourceUrl);
-        const fallbackThroughput = connection && typeof connection.downlink === 'number' ? connection.downlink * 1000 : null;
-        const throughputKbps = measuredThroughput || fallbackThroughput;
+        // Allow a manual simulated bandwidth override for testing.
+        let throughputKbps = null;
+        if(simulateBandwidthToggle && simulateBandwidthToggle.checked){
+            const val = Number(simulateBandwidthValue ? simulateBandwidthValue.value : simulateBandwidthRange ? simulateBandwidthRange.value : 0);
+            if(Number.isFinite(val) && val > 0){
+                throughputKbps = val; // expected in kbps
+            }
+        }
+
+        if(throughputKbps === null){
+            const measuredThroughput = measureThroughputKbps(resourceUrl);
+            const fallbackThroughput = connection && typeof connection.downlink === 'number' ? connection.downlink * 1000 : null;
+            throughputKbps = measuredThroughput || fallbackThroughput;
+        }
+        // Update the on-screen simulator label when adaptation runs.
+        updateSimBandwidthLabel(throughputKbps);
 
         if(!isAutoAdaptEnabled() || !throughputKbps || !currentVariant){
             rescheduleAutoAdapt();
@@ -480,6 +520,78 @@ function initialiseAdaptivePlayer(playerData){
             trimResourceTimings();
         }
     }
+
+    function formatMbpsFromKbps(kbps){
+        if(!kbps || !Number.isFinite(kbps)){
+            return '—';
+        }
+        const mbps = kbps / 1000;
+        return `${mbps.toFixed(1)} Mbps`;
+    }
+
+    function updateSimBandwidthLabel(kbpsValue){
+        if(!simulateBandwidthLabel){
+            return;
+        }
+        if(simulateBandwidthToggle && simulateBandwidthToggle.checked){
+            // If kpbsValue is null, read current control value
+            let kbps = kbpsValue;
+            if(kbps === null || kbps === undefined){
+                kbps = Number(simulateBandwidthValue ? simulateBandwidthValue.value : simulateBandwidthRange ? simulateBandwidthRange.value : 0);
+            }
+            if(!Number.isFinite(kbps) || kbps <= 0){
+                simulateBandwidthLabel.textContent = '—';
+            } else {
+                simulateBandwidthLabel.textContent = formatMbpsFromKbps(kbps);
+            }
+        } else {
+            simulateBandwidthLabel.textContent = 'Off';
+        }
+    }
+
+    // Wire up the simulator controls so the range and numeric field stay in sync.
+    if(simulateBandwidthRange && simulateBandwidthValue){
+        simulateBandwidthRange.addEventListener('input', () => {
+            simulateBandwidthValue.value = simulateBandwidthRange.value;
+            updateSimBandwidthLabel(Number(simulateBandwidthRange.value));
+        });
+        simulateBandwidthValue.addEventListener('input', () => {
+            let v = Number(simulateBandwidthValue.value);
+            if(Number.isNaN(v) || v < Number(simulateBandwidthRange.min)){
+                v = Number(simulateBandwidthRange.min);
+            }
+            if(v > Number(simulateBandwidthRange.max)){
+                v = Number(simulateBandwidthRange.max);
+            }
+            simulateBandwidthValue.value = String(v);
+            simulateBandwidthRange.value = String(v);
+            updateSimBandwidthLabel(Number(v));
+        });
+    }
+
+    if(simulateBandwidthToggle){
+        simulateBandwidthToggle.addEventListener('change', () => {
+            // If enabling simulation, trigger a check sooner so adaptation responds quickly.
+            if(simulateBandwidthToggle.checked){
+                throughputHistory.length = 0;
+                consecutiveDowngrades = 0;
+                consecutiveUpgrades = 0;
+                if(autoAdaptTimer){
+                    clearTimeout(autoAdaptTimer);
+                    autoAdaptTimer = null;
+                }
+                // run an immediate adapt check
+                maybeAutoAdapt(normaliseUrl(currentSegmentSrc));
+                updateSimBandwidthLabel();
+            }
+            if(!simulateBandwidthToggle.checked){
+                updateSimBandwidthLabel();
+            }
+        });
+    }
+
+    // Initialize label on startup
+    updateSimBandwidthLabel(Number(simulateBandwidthValue ? simulateBandwidthValue.value : simulateBandwidthRange ? simulateBandwidthRange.value : null));
 
     function selectVariantForThroughput(throughputKbps){
         if(!throughputKbps){
@@ -649,3 +761,16 @@ function initialiseAdaptivePlayer(playerData){
         }
     }
 }
+
+// Attach confirmation to any delete playlist forms present on the page.
+document.addEventListener('DOMContentLoaded', () => {
+    const deleteForms = document.querySelectorAll('.delete-playlist-form');
+    deleteForms.forEach((form) => {
+        form.addEventListener('submit', (ev) => {
+            const ok = confirm('Delete this playlist and all associated files? This cannot be undone.');
+            if(!ok){
+                ev.preventDefault();
+            }
+        });
+    });
+});

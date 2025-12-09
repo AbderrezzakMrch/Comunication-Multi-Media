@@ -1,0 +1,52 @@
+Presentation Bullet Points
+==========================
+
+Overview
+- Flask-based adaptive streaming demo for rapid experimentation.
+- Upload once, receive multi-resolution renditions plus segmented outputs.
+- Lightweight client showcases manual switching, auto adaptation, and simulated bandwidth.
+
+Architecture
+- `main.py` orchestrates Flask app creation, configuration, and blueprint registration.
+- `streaming_app.routes` hosts upload/list/delete/media endpoints and session wiring.
+- `streaming_app.services` centralizes ffmpeg/ffprobe helpers, manifest handling, and validation.
+- Single-page UI (`templates/index.html`) styled via `static/css/style.css`, powered by `static/js/main.js`.
+
+Processing Workflow
+- Secure upload validation and slugified playlist IDs per session.
+- Probes source metadata, filters requested resolutions to avoid upscaling.
+- Transcodes with synced keyframes, segments to aligned clips, computes bitrates.
+- Writes `manifest.json` plus organized `variants/` and `segments/` folders under `media/`.
+
+Player Experience
+- Auto loads most recent playlist, shows playlist history sidebar.
+- Video card supports full video playback, per-segment jumps, and resolution chips.
+- Auto adapt monitors throughput (or simulator input) to upgrade/downgrade intelligently.
+- Bandwidth simulator and delete protections highlight testing and lifecycle UX.
+
+Why It Matters
+- Demonstrates end-to-end adaptive streaming pipeline without external services.
+- FFmpeg-driven processing is transparent and easily configurable.
+- Clear separation of concerns simplifies onboarding and future feature work.
+
+Next Steps (Optional Talking Points)
+- Add authentication/roles, task queue, or cloud storage integration.
+- Export to HLS/DASH manifests for production-grade streaming.
+- Extend front-end analytics (segment metrics, bandwidth charts).
+
+Gamma Presentation Prompt
+==========================
+
+"""
+Create a polished presentation about the "CMM_streaming" project. Audience: senior engineers evaluating a POC for adaptive video delivery. Tone: confident, data-driven, and visually clean.
+
+Cover these sections:
+1. Project overview and objectives.
+2. Architecture (highlight `main.py`, `streaming_app.routes`, `streaming_app.services`, and the front-end assets).
+3. Media processing workflow (upload -> probe -> transcode -> segment -> manifest).
+4. Player capabilities (manual controls, auto adaptation, bandwidth simulator).
+5. Key differentiators and benefits for adopting this pipeline.
+6. Near-term roadmap ideas (auth, queues, HLS/DASH, analytics).
+
+Use concise bullet points, include flow diagrams or architecture sketches where appropriate, and propose one slide with potential demo steps.
+"""
